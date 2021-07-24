@@ -1,1 +1,1 @@
-web: gunicorn --pythonpath task_new task_new.wsgi --log-file -
+web: gunicorn --pythonpath djangoProject6 djangoProject6.wsgi --log-file -
