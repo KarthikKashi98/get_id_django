@@ -20,8 +20,7 @@ def try_first_time(request):
         'list': 'start your project',
 
     }
-    a = Task(given_id=0)
-    a.save()
+    Task.objects.all().delete()
 
     return Response(api_urls)
 
@@ -51,24 +50,21 @@ def taskList(request):
 
 def reset(request):
     lock = threading.Lock()
-    while (1):
+
+
+    with lock:
         try:
-            with lock:
+            obj = Task.objects.get(id=1)
 
-                obj = Task.objects.get(id=1)
-                if obj.exists():
-                    lock_for_session(obj, request.session)
-                    obj.given_id=0
-                    obj.save()
-                    unlock_for_session(obj, request.session)
-                else:
-                    a = Task(given_id=0)
-                    a.save()
+            lock_for_session(obj, request.session)
+            obj.given_id=0
+            obj.save()
+            unlock_for_session(obj, request.session)
+        except:
+            a = Task(given_id=0,id=1)
+            a.save()
 
-                return JsonResponse({"given_id": "newly value set to 0 "})
-        except AlreadyLockedError:
-            time.sleep(2)
+    return JsonResponse({"given_id": "newly value set to 0 "})
 
-            pass
 
 
