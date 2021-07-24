@@ -1,1 +1,1 @@
-web: gunicorn task_new.wsgi
+web: gunicorn --pythonpath task_new task_new.wsgi --log-file -
