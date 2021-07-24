@@ -1,2 +1,2 @@
-release: python manage.py makemigrations ; python manage.py migrate
-web: gunicorn --pythonpath djangoProject6 djangoProject6.wsgi --log-file -
+release: python manage.py makemigrations task_new ; python manage.py migrate
+web: gunicorn djangoProject6.wsgi
