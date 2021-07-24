@@ -8,11 +8,11 @@ from .serializers import TaskSerializer
 from .models import *
 from django.db.models import F
 import time
-
+from django.http import JsonResponse
 from django.http import HttpResponseForbidden
 from lock_tokens.exceptions import AlreadyLockedError, UnlockForbiddenError
 from lock_tokens.sessions import check_for_session, lock_for_session, unlock_for_session
-
+import threading
 
 @api_view(['GET'])
 def apiOverview(request):
@@ -26,20 +26,20 @@ def apiOverview(request):
 
 @api_view(['GET'])
 def taskList(request):
-    obj = Task.objects.get(id=1)
+    lock = threading.Lock()
     while (1):
         try:
+            with lock:
 
-            lock_for_session(obj, request.session)
 
 
-            Task.objects.filter(id=1).update(given_id=F("given_id") + 1)
+                Task.objects.filter(id=1).update(given_id=F("given_id") + 1)
 
-            serializer = TaskSerializer(Task.objects.all(), many=True)
+                serializer = TaskSerializer(Task.objects.all(), many=True)
 
-            unlock_for_session(obj, request.session)
 
-            return Response(serializer.data)
+
+                return Response(serializer.data)
         except AlreadyLockedError:
             time.sleep(2)
 
@@ -48,13 +48,16 @@ def taskList(request):
 @api_view(['GET'])
 
 def reset(request):
-    obj = Task.objects.get(id=1)
+    lock = threading.Lock()
     while (1):
         try:
-            lock_for_session(obj, request.session)
-            obj.given_id=1
-            obj.save()
-            unlock_for_session(obj, request.session)
+            with lock:
+                obj = Task.objects.get(id=1)
+                lock_for_session(obj, request.session)
+                obj.given_id=0
+                obj.save()
+                unlock_for_session(obj, request.session)
+                return JsonResponse({"given_id": "newly value set to 0 "})
         except AlreadyLockedError:
             time.sleep(2)
 
