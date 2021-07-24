@@ -1,2 +1,2 @@
-release: python manage.py makemigrations task_new ; python manage.py migrate
+release: python manage.py migrate --no-input
 web: gunicorn djangoProject6.wsgi
