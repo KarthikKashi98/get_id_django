@@ -15,11 +15,13 @@ from lock_tokens.sessions import check_for_session, lock_for_session, unlock_for
 import threading
 
 @api_view(['GET'])
-def apiOverview(request):
+def try_first_time(request):
     api_urls = {
-        'list': '/tasklist/',
+        'list': 'start your project',
 
     }
+    a = Task(given_id=0)
+    a.save()
 
     return Response(api_urls)
 
@@ -52,11 +54,17 @@ def reset(request):
     while (1):
         try:
             with lock:
+
                 obj = Task.objects.get(id=1)
-                lock_for_session(obj, request.session)
-                obj.given_id=0
-                obj.save()
-                unlock_for_session(obj, request.session)
+                if obj.exists():
+                    lock_for_session(obj, request.session)
+                    obj.given_id=0
+                    obj.save()
+                    unlock_for_session(obj, request.session)
+                else:
+                    a = Task(given_id=0)
+                    a.save()
+
                 return JsonResponse({"given_id": "newly value set to 0 "})
         except AlreadyLockedError:
             time.sleep(2)
