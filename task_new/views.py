@@ -5,7 +5,7 @@ from django.http import JsonResponse
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from .serializers import TaskSerializer
-from .models import *
+from .models import Task
 from django.db.models import F
 import time
 from django.http import JsonResponse
