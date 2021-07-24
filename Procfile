@@ -1,1 +1,1 @@
-web: gunicorn djangoProject6.wsgi
+web: gunicorn task_new.wsgi
